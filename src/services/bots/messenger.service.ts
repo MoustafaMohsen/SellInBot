@@ -1,4 +1,3 @@
-/// <reference path="./../../../node_modules/facebook-bot-messenger/index.js"/>
 import * as MessengerPlatform from "facebook-bot-messenger"
 
 export class MessengerBot {
