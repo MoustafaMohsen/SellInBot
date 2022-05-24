@@ -5,6 +5,7 @@ import express from "express";
 import MainServerCore from './core/server-core';
 import { DBService } from "../services/dbservice";
 import { UserService } from '../services/user.service';
+import { messenger } from '..';
 
 export default class MainServerRoutes extends MainServerCore {
 
@@ -57,6 +58,31 @@ export default class MainServerRoutes extends MainServerCore {
             const db = new DBService();
             try {
                 data.result = { ...(await db.PrepareDB(req.body.database)) };
+                send(res, data, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/admin/listen-to-page/' + process.env.APP_SECRET_KEY, async (req, res) => {
+            let t0 = performance.performance.now();
+            try {
+                if (!req.body.configs) {
+                    throw "req.body.configs was not set"
+                }
+                var data = messenger.setupBotForPage(req.body.configs)
+                send(res, data, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+
+        this.app.post('/admin/send-message/' + process.env.APP_SECRET_KEY, async (req, res) => {
+            let t0 = performance.performance.now();
+            try {
+                if (!req.body.message) {
+                    throw "req.body.message was not set"
+                }
+                var data = await messenger.send(req.body.message)
                 send(res, data, t0)
             } catch (error) {
                 err(res, error, t0)

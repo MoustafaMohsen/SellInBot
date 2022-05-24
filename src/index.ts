@@ -1,20 +1,12 @@
 import { config } from "dotenv"; "dotenv";
 config();
 import MainServer from "./server/core/server-init";
-
+import { MessengerBot } from "./services/bots/messenger.service";
+export const messenger = new MessengerBot();
 try {
     const server = new MainServer();
     server.init();
-    console.log("===Envs===");
-    console.log(process.env.DATABASE_URL)
-    console.log(process.env.DATABASE_USER)
-    console.log(process.env.DATABASE_PASSWORD)
-    console.log(process.env.DATABASE_HOST)
-    console.log(process.env.DATABASE_NAME)
-    console.log(process.env.EXECUTE_ACTIONS_EVERY_MINUTES)
-    
-     
+
 } catch (error) {
     console.log(error);
-    
 }
