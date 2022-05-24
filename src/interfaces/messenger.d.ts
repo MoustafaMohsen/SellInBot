@@ -1,9 +1,10 @@
 export interface MessengerBotConfigs{
     appID?: string
     appSecret?: string
-    validationToken?: string
+    verifyToken?: string
+    accessToken?: string
 
-    pageToken?: string
+    accessToken?: string
     pageID?: string,
 }
 

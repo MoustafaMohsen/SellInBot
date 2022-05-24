@@ -40,6 +40,37 @@ export default class MainServerRoutes extends MainServerCore {
                 err(res, error, t0)
             }
         })
+        //#region Admin Area
+        this.app.post('/', async (req, res) => {
+            let t0 = performance.performance.now();
+            let data = {} as any;
+            try {
+                send(res, data, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.get('/whatsapp/webhook', async (req, res) => {
+            let t0 = performance.performance.now();
+            let query = req.query;
+            try {
+                res.send(query["hub.challenge"])
+                // send(res, data, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        //#region Admin Area
+        this.app.post('/whatsapp/webhook', async (req, res) => {
+            let t0 = performance.performance.now();
+            let data = req.body;
+            console.log(JSON.stringify(data))
+            try {
+                send(res, {}, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
         this.app.get('/admin/test-db', async (req, res) => {
             let t0 = performance.performance.now();
             let data = {} as any;
@@ -66,9 +97,9 @@ export default class MainServerRoutes extends MainServerCore {
         this.app.post('/admin/listen-to-page/' + process.env.APP_SECRET_KEY, async (req, res) => {
             let t0 = performance.performance.now();
             try {
-                if (!req.body.configs) {
-                    throw "req.body.configs was not set"
-                }
+                // if (!req.body.configs) {
+                //     throw "req.body.configs was not set"
+                // }
                 var data = messenger.setupBotForPage(req.body.configs)
                 send(res, data, t0)
             } catch (error) {
@@ -82,8 +113,8 @@ export default class MainServerRoutes extends MainServerCore {
                 if (!req.body.message) {
                     throw "req.body.message was not set"
                 }
-                var data = await messenger.send(req.body.message)
-                send(res, data, t0)
+                // var data = await messenger.send(req.body.message)
+                send(res, {}, t0)
             } catch (error) {
                 err(res, error, t0)
             }
