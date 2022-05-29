@@ -1,5 +1,5 @@
 {
-  "name": "sellinbot",
+  "name": "sellinbot-payment",
   "version": "1.0.0",
   "description": "Sell and accept payments on the most popular chat apps",
   "main": "dist/index.js",

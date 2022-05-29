@@ -40,6 +40,7 @@ export default class MainServerRoutes extends MainServerCore {
                 err(res, error, t0)
             }
         })
+        
         //#region Admin Area
         this.app.post('/', async (req, res) => {
             let t0 = performance.performance.now();
@@ -50,6 +51,7 @@ export default class MainServerRoutes extends MainServerCore {
                 err(res, error, t0)
             }
         })
+
         this.app.get('/whatsapp/webhook', async (req, res) => {
             let t0 = performance.performance.now();
             let query = req.query;
@@ -60,7 +62,9 @@ export default class MainServerRoutes extends MainServerCore {
                 err(res, error, t0)
             }
         })
+
         //#region Admin Area
+        // All whatsapp messages come here
         this.app.post('/whatsapp/webhook', async (req, res) => {
             let t0 = performance.performance.now();
             let data = req.body;
