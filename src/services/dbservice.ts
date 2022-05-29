@@ -20,7 +20,9 @@ export class DBService {
 
         this.dbsettings.database = dbname;
         const client2 = await this.connect();
-        result.create_user_tabel = await this.create_user_tabel(client2);
+        result.create_products_table = await this.create_products_table(client2);
+        result.create_orders_table = await this.create_orders_table(client2);
+        result.create_conversations_table = await this.create_conversations_table(client2);
         // result.create_share_tabel = await this.create_share_tabel(client2); TODO: enable share table
         await client2.end();
         delete this.dbsettings.database;
@@ -61,28 +63,50 @@ export class DBService {
     }
 
     // ======= Create Tables
-    async create_user_tabel(client: Client, tablename = "dbuser") {
+    async create_products_table(client: Client, tablename = "products") {
         await client.query("DROP TABLE IF EXISTS " + tablename + ";")
         let result = await client.query(`
         CREATE EXTENSION pgcrypto;
         CREATE TABLE ${tablename} (
-            user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            email VARCHAR ( 255 ) NOT NULL UNIQUE,
-            db_cid VARCHAR ( 255 ),
-            db_version VARCHAR ( 255 ),
-            secure_hash TEXT,
+            product_id SERIAL PRIMARY KEY DEFAULT,
+            name VARCHAR ( 255 ),
+            image_url VARCHAR ( 255 ),
+            description TEXT,
+            price VARCHAR ( 255 ),
             meta TEXT
 );`)
         return result;
     }
 
-    async create_share_tabel(client: Client, tablename = "dbshare") {
+    async create_orders_table(client: Client, tablename = "orders") {
         await client.query("DROP TABLE IF EXISTS " + tablename + ";")
-        let result = await client.query(`CREATE TABLE ${tablename} (
-            id SERIAL PRIMARY KEY,
-            ownerId SERIAL NOT NULL,
-            reciverId SERIAL NOT NULL,
-            secure_hash TEXT,
+        let result = await client.query(`
+        CREATE EXTENSION pgcrypto;
+        CREATE TABLE ${tablename} (
+            order_id SERIAL PRIMARY KEY DEFAULT,
+            products TEXT,
+            customer TEXT,
+            amount VARCHAR ( 255 ),
+            status VARCHAR ( 255 ),
+            phone VARCHAR ( 255 ),
+            address VARCHAR ( 255 ),
+            country VARCHAR ( 255 ),
+            zipcode VARCHAR ( 255 ),
+            meta TEXT
+);`)
+        return result;
+    }
+
+    async create_conversations_table(client: Client, tablename = "conversations") {
+        await client.query("DROP TABLE IF EXISTS " + tablename + ";")
+        let result = await client.query(`
+        CREATE EXTENSION pgcrypto;
+        CREATE TABLE ${tablename} (
+            conversation_id SERIAL PRIMARY KEY DEFAULT,
+            messages TEXT,
+            source VARCHAR ( 255 ),
+            order TEXT,
+            status VARCHAR ( 255 ),
             meta TEXT
 );`)
         return result;
@@ -207,9 +231,9 @@ export class DBService {
 
     // Query helpers ==========
 
-    async insert_object(data: object, tabelname, dbname = "sellinbotdb", returnedField = "user_id") {
+    async insert_object(data: any, tabelname, dbname = "sellinbotdb", returnedField = "user_id") {
         let keys = Object.keys(data);
-        let values = Object.values(data);
+        let values = Object.values(data as object);
         const query = this.create_insert_query(tabelname, keys, values, returnedField);
         const client = await this.connect(dbname);
         let result = await client.query(query);
