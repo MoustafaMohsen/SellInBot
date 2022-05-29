@@ -1,5 +1,5 @@
 export interface IOrder {
-    customer_id?: number;
+    orders_id?: number;
     phone?: string;
     address?: string;
     country?: string;
