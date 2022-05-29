@@ -7,13 +7,14 @@ export class MessengerBot {
         appID: process.env.MESSENGER_APP_ID,
         appSecret: process.env.MESSENGER_APP_SECRET,
         verifyToken: process.env.MESSENGER_VERIFY_TOKEN,
+        pageID: process.env.MESSENGER_PAGE_ID,
         accessToken: process.env.MESSENGER_ACCESS_TOKEN
     };
     active_pages = []
     constructor() {
     }
 
-    setupBotForPage(page_configs: MessengerBotConfigs) {
+    setupBotForPage(page_configs: MessengerBotConfigs = {} as any) {
         let configs_for_page = { ...this.configs, ...page_configs }
         this.active_pages.push(configs_for_page.pageID)
         this.bot = new BootBot(configs_for_page);
@@ -55,8 +56,9 @@ export class MessengerBot {
 
         bot.start();
         bot.on('message', (payload, chat) => {
-            const text = payload.message.text;
-            chat.say(`Echo: ${text}`);
+            console.log(payload);
+            
+            // chat.say(`Echo: ${text}`);
         });
 
         return configs_for_page;
