@@ -5,8 +5,8 @@ export class Product {
     constructor() { }
 
     getProducts() {
-        let db = new DbObjectService<IProduct>("products");
-        return db.get_db_object({})
+        let db = new DbObjectService<IProduct[]>("products");
+        return db.get_all_objects()
     }
 
     getProduct(minimumProduct: IProduct) {

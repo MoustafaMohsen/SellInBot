@@ -6,7 +6,7 @@ export class Order {
 
     getOrders() {
         let db = new DbObjectService<IOrder>("orders");
-        return db.get_db_object({})
+        return db.get_all_objects()
     }
 
     getOrder(minimumOrder: IOrder) {

@@ -2,16 +2,26 @@ import { IDBSelect } from "../interfaces/db";
 import { DBService } from "./dbservice";
 
 export class DbObjectService<T> {
-    constructor(private tablename:string, private dbname = "sellinbotdb") {
+    constructor(private tablename: string, private parseArr:string[] = ["meta"], private dbname = "sellinbotdb") {
     }
 
     async create_db_object(obj: T) {
         const db = new DBService();
-        let results = await db.insert_object(obj, this.tablename, "user_id");
+        let results = await db.insert_object(obj, this.tablename, this.dbname, this.tablename + "_id");
         let result = await this.get_db_object(results.rows[0]);
         return result;
     }
 
+    async get_all_objects() {
+        const db = new DBService();
+        let client = await db.connect();
+        let results = await client.query(`SELECT * FROM ${this.tablename}`);
+        for (let i = 0; i < results.rows.length; i++) {
+            let row = results.rows[i];
+            row = this.parse_object(row);
+        }
+        return results.rows
+    }
     async get_db_object(minimum_user_object: T) {
         const db = new DBService();
         let _user: IDBSelect<T> = {
@@ -39,10 +49,15 @@ export class DbObjectService<T> {
     }
 
     //#region User parser
-    private parse_object(obj) {
+    private parse_object(obj, parseArr:string[] = this.parseArr) {
         try {
-            if (obj.meta) {
-                obj.meta = this.parse_if_string(obj.meta) as any;                
+            for (let i = 0; i < parseArr.length; i++) {
+                const key = parseArr[i];
+                if (obj[key]) {
+                    obj[key] = this.parse_if_string(obj[key]) as any;
+                } else {
+                    obj[key] = {}
+                }
             }
             return obj;
         } catch (error) {

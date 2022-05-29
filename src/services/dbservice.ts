@@ -66,9 +66,8 @@ export class DBService {
     async create_products_table(client: Client, tablename = "products") {
         await client.query("DROP TABLE IF EXISTS " + tablename + ";")
         let result = await client.query(`
-        CREATE EXTENSION pgcrypto;
         CREATE TABLE ${tablename} (
-            product_id SERIAL PRIMARY KEY DEFAULT,
+            products_id SERIAL PRIMARY KEY,
             name VARCHAR ( 255 ),
             image_url VARCHAR ( 255 ),
             description TEXT,
@@ -81,9 +80,8 @@ export class DBService {
     async create_orders_table(client: Client, tablename = "orders") {
         await client.query("DROP TABLE IF EXISTS " + tablename + ";")
         let result = await client.query(`
-        CREATE EXTENSION pgcrypto;
         CREATE TABLE ${tablename} (
-            order_id SERIAL PRIMARY KEY DEFAULT,
+            orders_id SERIAL PRIMARY KEY,
             products TEXT,
             customer TEXT,
             amount VARCHAR ( 255 ),
@@ -100,12 +98,10 @@ export class DBService {
     async create_conversations_table(client: Client, tablename = "conversations") {
         await client.query("DROP TABLE IF EXISTS " + tablename + ";")
         let result = await client.query(`
-        CREATE EXTENSION pgcrypto;
         CREATE TABLE ${tablename} (
-            conversation_id SERIAL PRIMARY KEY DEFAULT,
+            conversations_id SERIAL PRIMARY KEY,
             messages TEXT,
             source VARCHAR ( 255 ),
-            order TEXT,
             status VARCHAR ( 255 ),
             meta TEXT
 );`)
@@ -184,7 +180,7 @@ export class DBService {
         return query;
     }
 
-    create_insert_query(tabelname, cols: string[], values: string[], returnedField = "user_id"): QueryConfig {
+    create_insert_query(tabelname, cols: string[], values: string[], returnedField = tabelname + "_id"): QueryConfig {
         let _tmp_cols_arr = [];
         for (let i = 0; i < cols.length; i++) {
             _tmp_cols_arr.push("$" + (i + 1));
@@ -231,7 +227,7 @@ export class DBService {
 
     // Query helpers ==========
 
-    async insert_object(data: any, tabelname, dbname = "sellinbotdb", returnedField = "user_id") {
+    async insert_object(data: any, tabelname, dbname = "sellinbotdb", returnedField = tabelname + "_id") {
         let keys = Object.keys(data);
         let values = Object.values(data as object);
         const query = this.create_insert_query(tabelname, keys, values, returnedField);

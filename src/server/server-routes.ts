@@ -53,7 +53,7 @@ export default class MainServerRoutes extends MainServerCore {
             let data = req.body;
             const p = new Product();
             try {
-                let result = await p.getProduct({})
+                let result = await p.getProducts()
                 send(res, result, t0)
             } catch (error) {
                 err(res, error, t0)
@@ -64,6 +64,9 @@ export default class MainServerRoutes extends MainServerCore {
             const p = new Product();
             try {
                 let data: IProduct = req.body;
+                if (!data || !data.name) {
+                    throw "Empty product"
+                }
                 let result = await p.createProduct(data)
                 send(res, result, t0)
             } catch (error) {
@@ -117,7 +120,7 @@ export default class MainServerRoutes extends MainServerCore {
             let data = req.body;
             const p = new Order();
             try {
-                let result = await p.getOrder({})
+                let result = await p.getOrders()
                 send(res, result, t0)
             } catch (error) {
                 err(res, error, t0)
@@ -181,7 +184,7 @@ export default class MainServerRoutes extends MainServerCore {
             let data = req.body;
             const p = new Conversation();
             try {
-                let result = await p.getConversation({})
+                let result = await p.getConversations()
                 send(res, result, t0)
             } catch (error) {
                 err(res, error, t0)
