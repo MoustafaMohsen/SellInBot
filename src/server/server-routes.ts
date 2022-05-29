@@ -1,10 +1,14 @@
+import { IProduct } from './../interfaces/product.d';
+import { Product } from './../models/product';
+import { IOrder } from './../interfaces/order.d';
+import { Order } from './../models/order';
+import { IConversation } from './../interfaces/conversation.d';
+import { Conversation } from './../models/conversation';
 import { HelperService } from './../services/util/helper';
-import { IUser } from './../interfaces/user.interface';
 import performance from "perf_hooks";
 import express from "express";
 import MainServerCore from './core/server-core';
 import { DBService } from "../services/dbservice";
-import { UserService } from '../services/user.service';
 import { messenger } from '..';
 
 export default class MainServerRoutes extends MainServerCore {
@@ -29,6 +33,222 @@ export default class MainServerRoutes extends MainServerCore {
             console.error(message);
             res.send(JSON.stringify({ data: {}, response_status: 400, message, performance: pre, success: false }))
         }
+        // ======================================================
+        // ================== Products
+        // ======================================================
+        //#region Products
+        this.app.post('/products/get', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Product();
+            try {
+                let data: IProduct = req.body;
+                let result = await p.getProduct(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/products/get-all', async (req, res) => {
+            let t0 = performance.performance.now();
+            let data = req.body;
+            const p = new Product();
+            try {
+                let result = await p.getProduct({})
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/products/create', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Product();
+            try {
+                let data: IProduct = req.body;
+                let result = await p.createProduct(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/products/update', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Product();
+            try {
+                let data = {
+                    new_product: req.body.new_product,
+                    old_product: req.body.old_product
+                };
+                let result = await p.updateProduct(data.old_product, data.new_product)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/products/delete', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Product();
+            try {
+                let data: IProduct = req.body;
+                let result = await p.deleteProduct(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        //#endregion
+
+        // ======================================================
+        // ================== Orders
+        // ======================================================
+        //#region Orders
+        this.app.post('/orders/get', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Order();
+            try {
+                let data: IOrder = req.body;
+                let result = await p.getOrder(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/orders/get-all', async (req, res) => {
+            let t0 = performance.performance.now();
+            let data = req.body;
+            const p = new Order();
+            try {
+                let result = await p.getOrder({})
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/orders/create', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Order();
+            try {
+                let data: IOrder = req.body;
+                let result = await p.createOrder(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/orders/update', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Order();
+            try {
+                let data = {
+                    new_order: req.body.new_order,
+                    old_order: req.body.old_order
+                };
+                let result = await p.updateOrder(data.old_order, data.new_order)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/orders/delete', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Order();
+            try {
+                let data: IOrder = req.body;
+                let result = await p.deleteOrder(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        //#endregion
+
+        // ======================================================
+        // ================== Conversations
+        // ======================================================
+        //#region Conversations
+        this.app.post('/conversations/get', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Conversation();
+            try {
+                let data: IConversation = req.body;
+                let result = await p.getConversation(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/conversations/get-all', async (req, res) => {
+            let t0 = performance.performance.now();
+            let data = req.body;
+            const p = new Conversation();
+            try {
+                let result = await p.getConversation({})
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/conversations/create', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Conversation();
+            try {
+                let data: IConversation = req.body;
+                let result = await p.createConversation(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/conversations/update', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Conversation();
+            try {
+                let data = {
+                    new_conversation: req.body.new_conversation,
+                    old_conversation: req.body.old_conversation
+                };
+                let result = await p.updateConversation(data.old_conversation, data.new_conversation)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/conversations/delete', async (req, res) => {
+            let t0 = performance.performance.now();
+            const p = new Conversation();
+            try {
+                let data: IConversation = req.body;
+                let result = await p.deleteConversation(data)
+                send(res, result, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        //#endregion
+
+
+        //#region Webhooks
+        // All whatsapp messages come here
+        this.app.get('/whatsapp/webhook', async (req, res) => {
+            let t0 = performance.performance.now();
+            let query = req.query;
+            try {
+                res.send(query["hub.challenge"])
+                // send(res, data, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        this.app.post('/whatsapp/webhook', async (req, res) => {
+            let t0 = performance.performance.now();
+            let data = req.body;
+            console.log(JSON.stringify(data))
+            try {
+                send(res, {}, t0)
+            } catch (error) {
+                err(res, error, t0)
+            }
+        })
+        //#endregion
 
         //#region Admin Area
         this.app.get('/', async (req, res) => {
@@ -40,41 +260,7 @@ export default class MainServerRoutes extends MainServerCore {
                 err(res, error, t0)
             }
         })
-        
-        //#region Admin Area
-        this.app.post('/', async (req, res) => {
-            let t0 = performance.performance.now();
-            let data = {} as any;
-            try {
-                send(res, data, t0)
-            } catch (error) {
-                err(res, error, t0)
-            }
-        })
 
-        this.app.get('/whatsapp/webhook', async (req, res) => {
-            let t0 = performance.performance.now();
-            let query = req.query;
-            try {
-                res.send(query["hub.challenge"])
-                // send(res, data, t0)
-            } catch (error) {
-                err(res, error, t0)
-            }
-        })
-
-        //#region Admin Area
-        // All whatsapp messages come here
-        this.app.post('/whatsapp/webhook', async (req, res) => {
-            let t0 = performance.performance.now();
-            let data = req.body;
-            console.log(JSON.stringify(data))
-            try {
-                send(res, {}, t0)
-            } catch (error) {
-                err(res, error, t0)
-            }
-        })
         this.app.get('/admin/test-db', async (req, res) => {
             let t0 = performance.performance.now();
             let data = {} as any;
@@ -98,68 +284,17 @@ export default class MainServerRoutes extends MainServerCore {
                 err(res, error, t0)
             }
         })
+
         this.app.post('/admin/listen-to-page/' + process.env.APP_SECRET_KEY, async (req, res) => {
             let t0 = performance.performance.now();
             try {
-                // if (!req.body.configs) {
-                //     throw "req.body.configs was not set"
-                // }
                 var data = messenger.setupBotForPage(req.body.configs)
                 send(res, data, t0)
             } catch (error) {
                 err(res, error, t0)
             }
         })
-
-        this.app.post('/admin/send-message/' + process.env.APP_SECRET_KEY, async (req, res) => {
-            let t0 = performance.performance.now();
-            try {
-                if (!req.body.message) {
-                    throw "req.body.message was not set"
-                }
-                // var data = await messenger.send(req.body.message)
-                send(res, {}, t0)
-            } catch (error) {
-                err(res, error, t0)
-            }
-        })
         //#endregion
-
-
-        this.app.post('/register', async (req, res) => {
-            let t0 = performance.performance.now();
-            try {
-                const userSrv = new UserService();
-                let newUserObject: IUser = req.body.secureAuthObject;
-                newUserObject.meta = {
-                    private_key: HelperService.makeid(64)
-                }
-                userSrv.registerUser(newUserObject).then((d) => {
-                    delete d.meta;
-                    send(res, d, t0)
-                }).catch(e => {
-                    err(res, e, t0)
-                })
-            } catch (error) {
-                err(res, error, t0)
-            }
-        })
-
-        this.app.post('/login', async (req, res) => {
-            let t0 = performance.performance.now();
-            try {
-                const userSrv = new UserService();
-                let secureAuthObject: IUser = req.body.secureAuthObject;
-                userSrv.authenticatUser(secureAuthObject).then((d) => {
-                    delete d.meta;
-                    send(res, d, t0)
-                }).catch(e => {
-                    err(res, e, t0)
-                })
-            } catch (error) {
-                err(res, error, t0)
-            }
-        })
 
     }
 
