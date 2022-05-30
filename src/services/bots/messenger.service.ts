@@ -114,12 +114,14 @@ export class MessengerBot {
             let dbOrder = await orderService.createOrder(order)
             let amount = orderService.orderTotal(dbOrder)
             // generate checkout id here
-            await axios.post(process.env.PAYMENT_API + '/user', {amount}).then(async (checkout)=>{
-                const checkout_id = checkout?.data?.id
+            let request = { amount }
+            await axios.post(process.env.PAYMENT_API + '/checkout', request).then(async (res)=>{
+                let checkout_id = res?.data?.data?.id
                 if (!checkout_id) {
                     let text = `Could not generate payment page, someone will be in contact with you soon`
                     await this.logConvo(payload, "Bot", text)
                     chat.say(text)
+                    return
                 }
                 let text = `Order no. ${dbOrder.orders_id} Confirmed, Total: ${amount}`
                 await this.logConvo(payload, "Bot", text)
@@ -129,15 +131,10 @@ export class MessengerBot {
                         { title: 'Click to Pay', type: 'web_url', url: 'http://localhost:4200//customer/checkout/' + checkout_id }
                     ]
                 })
+            }).catch(r=>{
+                console.error(r)
             })
         });
-        // this.bot.on('postback:CHECK_ORDER', (payload, chat) => {
-        //     chat.say(`Here are your settings: ...`);
-        // });
-
-        // this.bot.on('postback:FEEDBACK', (payload, chat) => {
-        //     chat.say(`Here are your settings: ...`);
-        // });
     }
 
     setupHear() {
@@ -282,77 +279,3 @@ export class MessengerBot {
     }
 
 }
-
-
-/*
-chat.say({
-
-    text: 'What do you need help with?',
-    buttons: [
-        { type: 'postback', title: 'Settings', payload: 'HELP_SETTINGS' },
-        { type: 'postback', title: 'FAQ', payload: 'HELP_FAQ' },
-        { type: 'postback', title: 'Talk to a human', payload: 'HELP_HUMAN' }
-    ]
-})
-
-chat.say({
-    attachment: 'image',
-    url: 'https://www.adobe.com/express/feature/image/media_16ad2258cac6171d66942b13b8cd4839f0b6be6f3.png?width=750&format=png&optimize=medium'
-});
-
-chat.say({
-    text: 'What would you like to do today?',
-    quickReplies: ['Purchase a Product', 'Check order status', 'Browse Products']
-});
-
-// Start a conversation
-const askName = (convo) => {
-        convo.ask(`What's your name?`, (payload, convo) => {
-            const text = payload.message.text;
-            convo.set('name', text);
-            convo.say(`Oh, your name is ${text}`).then(() => sendSummary(convo));
-        });
-    };
-const sendSummary = (convo) => {
-        convo.say(`Ok, here's what you told me about you:
-          - Name: ${convo.get('name')}
-      convo.end();
-    };
-
-chat.conversation((convo) => {
-    askName(convo);
-});
-productConvo(chat) {
-    const askProducCode = (convo) => {
-        convo.ask(`If you have a product in minde please enter it's Name or Code??`, async (payload, convo) => {
-            console.log(payload);
-            // if the response is a text then continue conversation, else end conversation
-            const text = payload.message.text;
-            // search for product in db
-            let PService = new Product();
-            let result = await PService.getProductById(text);
-            console.log(result);
-            if (result) {
-                convo.set('product_name_or_id', text);
-                convo.say({
-                    attachment: 'image',
-                    url: 'https://www.adobe.com/express/feature/image/media_16ad2258cac6171d66942b13b8cd4839f0b6be6f3.png?width=750&format=png&optimize=medium',
-                    buttons: [
-                        { type: 'postback', title: 'Add to Cart', payload: 'ADD_TO_CARt:' + text },
-                        { type: 'postback', title: 'Sell Available Product', payload: 'ORDER' },
-                    ]
-                });
-
-            } else {
-                askProducCode(convo);
-            }
-            convo.say(`Oh, your name is ${text}`);
-
-
-        });
-    };
-    chat.conversation((convo) => {
-        askProducCode(convo);
-    });
-}
-*/
