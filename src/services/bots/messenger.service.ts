@@ -6,6 +6,7 @@ import { MessengerBotConfigs, sendMessage } from "../../interfaces/messenger";
 import { Conversation } from '../../models/conversation';
 import { IConversation, IMessage } from '../../interfaces/conversation';
 import { IOrder } from '../../interfaces/order';
+import axios from 'axios';
 export class MessengerBot {
 
     configs: MessengerBotConfigs = {
@@ -78,16 +79,17 @@ export class MessengerBot {
             const customer = this.customer(payload.sender.id);
             customer.expecting = "product";
             let text = "What is the product code? (example:54)"
-            this.logConvo(payload, "Bot", text)    
+            this.logConvo(payload, "Bot", text)
             chat.say(text)
         });
 
-        this.bot.on('postback:ADD_TO_CART', (payload, chat) => {
+        this.bot.on('postback:ADD_TO_CART', async (payload, chat) => {
             const customer = this.customer(payload.sender.id);
             customer.cart.push(customer.selected_product)
+            customer.selected_product = null
             customer.expecting = "product";
             let text = 'Added, Would you like to continue to order?'
-            this.logConvo(payload, "Bot", text)    
+            await this.logConvo(payload, "Bot", text)
             chat.say({
                 text,
                 buttons: [
@@ -110,16 +112,23 @@ export class MessengerBot {
             }
             let order: IOrder = customer.order
             let dbOrder = await orderService.createOrder(order)
-            let total = orderService.orderTotal(dbOrder)
+            let amount = orderService.orderTotal(dbOrder)
             // generate checkout id here
-            const checkout_id = "checkout_693bac0ff263969b9f1814f510de37bf"
-            let text = `Order no. ${dbOrder.orders_id} Confirmed, Total: ${total}`
-            this.logConvo(payload, "Bot", text)    
-            chat.say({
-                text,
-                buttons: [
-                    { title: 'Click to Pay', type: 'web_url', url: 'http://localhost:4200//customer/checkout/' + checkout_id }
-                ]
+            await axios.post(process.env.PAYMENT_API + '/user', {amount}).then(async (checkout)=>{
+                const checkout_id = checkout?.data?.id
+                if (!checkout_id) {
+                    let text = `Could not generate payment page, someone will be in contact with you soon`
+                    await this.logConvo(payload, "Bot", text)
+                    chat.say(text)
+                }
+                let text = `Order no. ${dbOrder.orders_id} Confirmed, Total: ${amount}`
+                await this.logConvo(payload, "Bot", text)
+                chat.say({
+                    text,
+                    buttons: [
+                        { title: 'Click to Pay', type: 'web_url', url: 'http://localhost:4200//customer/checkout/' + checkout_id }
+                    ]
+                })
             })
         });
         // this.bot.on('postback:CHECK_ORDER', (payload, chat) => {
@@ -179,7 +188,7 @@ export class MessengerBot {
                 customer.order.name = payload.message?.text
                 setTimeout(() => { customer.expecting = "phone" }, 100)
                 let text = `what is your phone number with county code? (example: +12025550107)`
-                this.logConvo(payload, "Bot", text)    
+                this.logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
@@ -189,7 +198,7 @@ export class MessengerBot {
                 customer.order.phone = payload.message?.text
                 setTimeout(() => { customer.expecting = "country" }, 100)
                 let text = `What is your country? (example: US)`
-                this.logConvo(payload, "Bot", text)    
+                this.logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
@@ -212,7 +221,7 @@ export class MessengerBot {
                 let text = `Order Detail:\nName: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.address}\nCountry: ${order.country}`
                 this.logConvo(payload, "Bot", text)
                 chat.say({
-                    text ,
+                    text,
                     buttons: [
                         { type: 'postback', title: 'Continue to Checkout', payload: 'CONFIRM_ORDER' },
                     ]
@@ -225,8 +234,8 @@ export class MessengerBot {
 
     logConvo(payload, sender: "Bot" | "Customer", text?, customer_id?) {
         let convo = new Conversation();
-        if(!customer_id) customer_id = payload.sender.id
-        convo.getConversation({ customer_id }).then(dbConvo=>{
+        if (!customer_id) customer_id = payload.sender.id
+        convo.getConversation({ customer_id }).then(dbConvo => {
             // if convo alrady exists add it to messages else create a brand new message
             if (!text) {
                 text = payload?.message ? payload.message.text : payload.postback.title
