@@ -40,7 +40,7 @@ export class MessengerBot {
             this.resetCustoemr(customer_id, false)
 
             // log all customer messages to db
-            await this.logConvo(payload, "Customer")
+            await logConvo(payload, "Customer")
 
         }
         bot.on('message', initCallback);
@@ -50,7 +50,7 @@ export class MessengerBot {
 
     getStarted(payload, chat) {
         let text = 'Welcome to SellinBot. What are you looking for?'
-        this.logConvo(payload, "Bot", text)
+        logConvo(payload, "Bot", text)
         chat.say({
             text,
             buttons: [
@@ -79,7 +79,7 @@ export class MessengerBot {
             const customer = this.customer(payload.sender.id);
             customer.expecting = "product";
             let text = "What is the product code? (example:54)"
-            await this.logConvo(payload, "Bot", text)
+            await logConvo(payload, "Bot", text)
             chat.say(text)
         });
 
@@ -89,7 +89,7 @@ export class MessengerBot {
             customer.selected_product = null
             customer.expecting = "product";
             let text = 'Added, Would you like to continue to order?'
-            await this.logConvo(payload, "Bot", text)
+            await logConvo(payload, "Bot", text)
             chat.say({
                 text,
                 buttons: [
@@ -119,12 +119,12 @@ export class MessengerBot {
                 let checkout_id = res?.data?.data?.id
                 if (!checkout_id) {
                     let text = `Could not generate payment page, someone will be in contact with you soon`
-                    await this.logConvo(payload, "Bot", text)
+                    await logConvo(payload, "Bot", text)
                     chat.say(text)
                     return
                 }
                 let text = `Order no. ${dbOrder.orders_id} Confirmed, Total: ${amount}`
-                await this.logConvo(payload, "Bot", text)
+                await logConvo(payload, "Bot", text)
                 chat.say({
                     text,
                     buttons: [
@@ -151,7 +151,7 @@ export class MessengerBot {
                     customer.selected_product = product
                     // confirm add product id to cart? // ADD_TO_CART:50
                     let text = "Selecting Product " + product.name
-                    await this.logConvo(payload, "Bot", text)
+                    await logConvo(payload, "Bot", text)
                     chat.say({
                         text,
                         attachment: 'image',
@@ -176,7 +176,7 @@ export class MessengerBot {
                 customer_id: payload.sender.id
             }
             let text = `what is your name? (example: John Micheal)`
-            await this.logConvo(payload, "Bot", text)
+            await logConvo(payload, "Bot", text)
             chat.say(text);
         });
         this.bot.on('message', async (payload, chat) => {
@@ -185,7 +185,7 @@ export class MessengerBot {
                 customer.order.name = payload.message?.text
                 setTimeout(() => { customer.expecting = "phone" }, 100)
                 let text = `what is your phone number with county code? (example: +12025550107)`
-                await this.logConvo(payload, "Bot", text)
+                await logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
@@ -195,7 +195,7 @@ export class MessengerBot {
                 customer.order.phone = payload.message?.text
                 setTimeout(() => { customer.expecting = "country" }, 100)
                 let text = `What is your country? (example: US)`
-                await this.logConvo(payload, "Bot", text)
+                await logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
@@ -205,7 +205,7 @@ export class MessengerBot {
                 customer.order.country = payload.message?.text
                 setTimeout(() => { customer.expecting = "order_confirm" }, 100)
                 let text = `Please enter your full shipping address?`
-                await this.logConvo(payload, "Bot", text)
+                await logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
@@ -216,7 +216,7 @@ export class MessengerBot {
                 const order = customer.order;
                 setTimeout(() => { customer.expecting = "order" }, 100)
                 let text = `Order Detail:\nName: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.address}\nCountry: ${order.country}`
-                await this.logConvo(payload, "Bot", text)
+                await logConvo(payload, "Bot", text)
                 chat.say({
                     text,
                     buttons: [
@@ -229,36 +229,7 @@ export class MessengerBot {
     }
 
 
-    logConvo(payload, sender: "Bot" | "Customer", text?, customer_id?) {
-        let convo = new Conversation();
-        if (!customer_id) customer_id = payload.sender.id
-        convo.getConversation({ customer_id }).then(dbConvo => {
-            // if convo alrady exists add it to messages else create a brand new message
-            if (!text) {
-                text = payload?.message ? payload.message.text : payload.postback.title
-            }
-            let message: IMessage = {
-                timestamp: payload.timestamp,
-                sender,
-                text
-            };
-            if (dbConvo) {
-                dbConvo.meta.messages.push(message);
-                convo.updateConversation({ conversations_id: dbConvo.conversations_id }, { meta: dbConvo.meta });
-            } else {
-                let conversation: IConversation = {
-                    customer_id,
-                    source: "messenger",
-                    status: "Not Ordred",
-                    meta: {
-                        messages: [message],
-                        orders: []
-                    }
-                };
-                convo.createConversation(conversation);
-            }
-        })
-    }
+    
 
     customer(customer_id) {
         if (!this._customers[customer_id]) {
@@ -278,4 +249,35 @@ export class MessengerBot {
         }
     }
 
+}
+
+function logConvo(payload, sender: "Bot" | "Customer", text?, customer_id?) {
+    let convo = new Conversation();
+    if (!customer_id) customer_id = payload.sender.id
+    convo.getConversation({ customer_id }).then(dbConvo => {
+        // if convo alrady exists add it to messages else create a brand new message
+        if (!text) {
+            text = payload?.message ? payload.message.text : payload.postback.title
+        }
+        let message: IMessage = {
+            timestamp: payload.timestamp,
+            sender,
+            text
+        };
+        if (dbConvo) {
+            dbConvo.meta.messages.push(message);
+            convo.updateConversation({ conversations_id: dbConvo.conversations_id }, { meta: dbConvo.meta });
+        } else {
+            let conversation: IConversation = {
+                customer_id,
+                source: "messenger",
+                status: "Not Ordred",
+                meta: {
+                    messages: [message],
+                    orders: []
+                }
+            };
+            convo.createConversation(conversation);
+        }
+    })
 }
