@@ -156,7 +156,7 @@ export default class MainServerRoutes extends MainServerCore {
             const p = new Order();
             try {
                 let data: IOrder = req.body;
-                let result = await p.deleteOrder(data)
+                let result = await p.deleteOrder(data.orders_id)
                 send(res, result, t0)
             } catch (error) {
                 err(res, error, t0)
@@ -220,7 +220,7 @@ export default class MainServerRoutes extends MainServerCore {
             const p = new Conversation();
             try {
                 let data: IConversation = req.body;
-                let result = await p.deleteConversation(data)
+                let result = await p.deleteConversation(data.conversations_id)
                 send(res, result, t0)
             } catch (error) {
                 err(res, error, t0)

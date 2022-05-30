@@ -24,8 +24,8 @@ export class Conversation {
         return db.update_db_object(oldConversation, newConversation)
     }
 
-    deleteConversation(minimumConversation: IConversation) {
+    deleteConversation(id: number) {
         let db = new DbObjectService<IConversation>("conversations");
-        return db.delete_db_object(minimumConversation)
+        return db.delete_db_object(id+"","conversations_id")
     }
 }

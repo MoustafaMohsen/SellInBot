@@ -24,9 +24,9 @@ export class Order {
         return db.update_db_object(oldOrder, newOrder)
     }
 
-    deleteOrder(minimumOrder: IOrder) {
+    deleteOrder(id: number) {
         let db = new DbObjectService<IOrder>("orders");
-        return db.delete_db_object(minimumOrder)
+        return db.delete_db_object(id+"", "orders_id")
     }
 
     orderTotal(order: IOrder) {
