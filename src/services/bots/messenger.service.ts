@@ -35,12 +35,12 @@ export class MessengerBot {
         this.setupMenu();
         this.setupPostbacks();
         this.setupHear();
-        const initCallback = (payload, chat) => {
+        const initCallback = async (payload, chat) => {
             const customer_id = payload.sender.id;
             this.resetCustoemr(customer_id, false)
 
             // log all customer messages to db
-            this.logConvo(payload, "Customer")
+            await this.logConvo(payload, "Customer")
 
         }
         bot.on('message', initCallback);
@@ -74,12 +74,12 @@ export class MessengerBot {
     }
 
     setupPostbacks() {
-        this.bot.on('postback:PRODUCT', (payload, chat) => {
+        this.bot.on('postback:PRODUCT', async (payload, chat) => {
             this.resetCustoemr(payload.sender.id)
             const customer = this.customer(payload.sender.id);
             customer.expecting = "product";
             let text = "What is the product code? (example:54)"
-            this.logConvo(payload, "Bot", text)
+            await this.logConvo(payload, "Bot", text)
             chat.say(text)
         });
 
@@ -151,7 +151,7 @@ export class MessengerBot {
                     customer.selected_product = product
                     // confirm add product id to cart? // ADD_TO_CART:50
                     let text = "Selecting Product " + product.name
-                    this.logConvo(payload, "Bot", text)
+                    await this.logConvo(payload, "Bot", text)
                     chat.say({
                         text,
                         attachment: 'image',
@@ -167,7 +167,7 @@ export class MessengerBot {
         });
         // continue to order // START_ORDER
         // enter customer name // johne micheal
-        this.bot.on('postback:START_ORDER', (payload, chat) => {
+        this.bot.on('postback:START_ORDER', async (payload, chat) => {
             const customer = this.customer(payload.sender.id);
             if (customer.selected_product) customer.cart.push(customer.selected_product)
             customer.selected_product = null;
@@ -176,47 +176,47 @@ export class MessengerBot {
                 customer_id: payload.sender.id
             }
             let text = `what is your name? (example: John Micheal)`
-            this.logConvo(payload, "Bot", text)
+            await this.logConvo(payload, "Bot", text)
             chat.say(text);
         });
-        this.bot.on('message', (payload, chat) => {
+        this.bot.on('message', async (payload, chat) => {
             const customer = this.customer(payload.sender.id);
             if (customer.expecting === "name") {
                 customer.order.name = payload.message?.text
                 setTimeout(() => { customer.expecting = "phone" }, 100)
                 let text = `what is your phone number with county code? (example: +12025550107)`
-                this.logConvo(payload, "Bot", text)
+                await this.logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
-        this.bot.on('message', (payload, chat) => {
+        this.bot.on('message', async (payload, chat) => {
             const customer = this.customer(payload.sender.id);
             if (customer.expecting === "phone") {
                 customer.order.phone = payload.message?.text
                 setTimeout(() => { customer.expecting = "country" }, 100)
                 let text = `What is your country? (example: US)`
-                this.logConvo(payload, "Bot", text)
+                await this.logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
-        this.bot.on('message', (payload, chat) => {
+        this.bot.on('message', async (payload, chat) => {
             const customer = this.customer(payload.sender.id);
             if (customer.expecting === "country") {
                 customer.order.country = payload.message?.text
                 setTimeout(() => { customer.expecting = "order_confirm" }, 100)
                 let text = `Please enter your full shipping address?`
-                this.logConvo(payload, "Bot", text)
+                await this.logConvo(payload, "Bot", text)
                 chat.say(text);
             }
         });
-        this.bot.on('message', (payload, chat) => {
+        this.bot.on('message', async (payload, chat) => {
             const customer = this.customer(payload.sender.id);
             if (customer.expecting === "order_confirm") {
                 customer.order.address = payload.message?.text
                 const order = customer.order;
                 setTimeout(() => { customer.expecting = "order" }, 100)
                 let text = `Order Detail:\nName: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.address}\nCountry: ${order.country}`
-                this.logConvo(payload, "Bot", text)
+                await this.logConvo(payload, "Bot", text)
                 chat.say({
                     text,
                     buttons: [
