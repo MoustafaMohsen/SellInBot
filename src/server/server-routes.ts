@@ -92,7 +92,7 @@ export default class MainServerRoutes extends MainServerCore {
             const p = new Product();
             try {
                 let data: IProduct = req.body;
-                let result = await p.deleteProduct(data)
+                let result = await p.deleteProduct(data.products_id + "")
                 send(res, result, t0)
             } catch (error) {
                 err(res, error, t0)

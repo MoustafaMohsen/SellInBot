@@ -1,15 +1,16 @@
 export interface IConversation {
-    conversation_id?: number;
+    conversations_id?: number;
+    customer_id?: number;
     source?: "whatsapp" | "messenger";
     status?: "Ordered" | "Paied" | "Pending" | "Shipped" | "Canceled" | "Not Ordred";
     meta?: {
-        order?: any;
-        messages?: {
-            text:string
-            time:string
-            sender:"bot" | "customer"
-        }[];
-        customer_name:string
+        orders?: number[];
+        messages: IMessage[];
+        customer_name?: string
     };
-  }
-  
+}
+export interface IMessage {
+    text: string;
+    timestamp: string;
+    sender: "Bot" | "Customer"
+}

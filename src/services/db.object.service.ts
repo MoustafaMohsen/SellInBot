@@ -2,13 +2,13 @@ import { IDBSelect } from "../interfaces/db";
 import { DBService } from "./dbservice";
 
 export class DbObjectService<T> {
-    constructor(private tablename: string, private parseArr:string[] = ["meta"], private dbname = "sellinbotdb") {
+    constructor(private tablename: string, private parseArr: string[] = ["meta"], private dbname = "sellinbotdb") {
     }
 
-    async create_db_object(obj: T) {
+    async create_db_object<T>(obj: T) {
         const db = new DBService();
         let results = await db.insert_object(obj, this.tablename, this.dbname, this.tablename + "_id");
-        let result = await this.get_db_object(results.rows[0]);
+        let result = await this.get_db_object<T>(results.rows[0]);
         return result;
     }
 
@@ -22,16 +22,16 @@ export class DbObjectService<T> {
         }
         return results.rows
     }
-    async get_db_object(minimum_user_object: T) {
+    async get_db_object<T = any>(minimum_user_object: T, relation: "OR" | "AND" = "AND") : Promise<T>{
         const db = new DBService();
         let _user: IDBSelect<T> = {
             "*": minimum_user_object
         }
-        let results = await db.get_object<T>(_user, "AND", this.tablename);
+        let results = await db.get_object<T>(_user, relation, this.tablename);
         if (results.rows[0]) {
             return this.parse_object(results.rows[0]);
         }
-        return null;
+        return null as any;
     }
 
     async update_db_object(object: T, newObj: T) {
@@ -42,14 +42,14 @@ export class DbObjectService<T> {
     }
 
 
-    async delete_db_object(obj: T) {
+    async delete_db_object(id:string, column:string) {
         const db = new DBService();
-        let results = await db.delete_object<T>(obj as Object, "AND", this.tablename);
+        let results = await db.delete_record<T>(id, column, this.tablename);
         return results;
     }
 
     //#region User parser
-    private parse_object(obj, parseArr:string[] = this.parseArr) {
+    private parse_object(obj, parseArr: string[] = this.parseArr) {
         try {
             for (let i = 0; i < parseArr.length; i++) {
                 const key = parseArr[i];

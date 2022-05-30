@@ -28,4 +28,10 @@ export class Order {
         let db = new DbObjectService<IOrder>("orders");
         return db.delete_db_object(minimumOrder)
     }
+
+    orderTotal(order: IOrder) {
+        let total = 0
+        order?.meta?.products?.forEach((a)=>{total = total + parseInt(a.price)})
+        return total
+    }
 }

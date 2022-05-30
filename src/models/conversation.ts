@@ -11,7 +11,7 @@ export class Conversation {
 
     getConversation(minimumConversation: IConversation) {
         let db = new DbObjectService<IConversation>("conversations");
-        return db.get_db_object(minimumConversation)
+        return db.get_db_object<IConversation>(minimumConversation)
     }
 
     createConversation(conversation: IConversation) {

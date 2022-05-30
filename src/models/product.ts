@@ -14,6 +14,19 @@ export class Product {
         return db.get_db_object(minimumProduct)
     }
 
+    async getProductById(searchStr) {
+        let db = new DbObjectService<IProduct>("products");
+        let minimumProduct:IProduct = {
+            products_id:searchStr,
+        }
+        let result1 = await db.get_db_object(minimumProduct, "OR")
+        if (result1) {
+            return result1
+        }
+        return null;
+
+    }
+
     createProduct(product: IProduct) {
         let db = new DbObjectService<IProduct>("products");
         return db.create_db_object(product)
@@ -24,8 +37,8 @@ export class Product {
         return db.update_db_object(oldProduct, newProduct)
     }
 
-    deleteProduct(minimumProduct: IProduct) {
+    deleteProduct(id:string) {
         let db = new DbObjectService<IProduct>("products");
-        return db.delete_db_object(minimumProduct)
+        return db.delete_db_object(id, "products_id")
     }
 }

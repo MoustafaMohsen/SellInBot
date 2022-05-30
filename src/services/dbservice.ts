@@ -82,14 +82,12 @@ export class DBService {
         let result = await client.query(`
         CREATE TABLE ${tablename} (
             orders_id SERIAL PRIMARY KEY,
-            products TEXT,
-            customer TEXT,
-            amount VARCHAR ( 255 ),
-            status VARCHAR ( 255 ),
             phone VARCHAR ( 255 ),
             address VARCHAR ( 255 ),
+            status VARCHAR ( 255 ),
             country VARCHAR ( 255 ),
-            zipcode VARCHAR ( 255 ),
+            name VARCHAR ( 255 ),
+            customer_id VARCHAR ( 255 ),
             meta TEXT
 );`)
         return result;
@@ -100,7 +98,7 @@ export class DBService {
         let result = await client.query(`
         CREATE TABLE ${tablename} (
             conversations_id SERIAL PRIMARY KEY,
-            messages TEXT,
+            customer_id VARCHAR ( 255 ),
             source VARCHAR ( 255 ),
             status VARCHAR ( 255 ),
             meta TEXT
@@ -170,7 +168,7 @@ export class DBService {
         for (let i = 0; i < equals_keys.length; i++) {
             const key = equals_keys[i];
             const value = values[key];
-            _tmp_keys = _tmp_keys + key + `=$${i + 1} ` + (i != equals_keys.length - 1 ? relation : "");
+            _tmp_keys = _tmp_keys + key + `=$${i + 1} ` + (i != equals_keys.length - 1 ? relation + " " : "");
         }
         let _tmp_cols = cols ? typeof cols == "string" ? cols : cols.join(", ") : "*";
         const query = {
@@ -255,10 +253,8 @@ export class DBService {
         return result;
     }
 
-    async delete_object<T = any>(data: object, relation: "OR" | "AND", tabelname, dbname = "sellinbotdb") {
-        let keys = Object.keys(data)[0];
-        let values = Object.values(data)[0];
-        const query = this.create_delete_query(tabelname, keys, values, relation);
+    async delete_record<T = any>(id:string, column:string, tabelname, dbname = "sellinbotdb") {
+        const query = `DELETE FROM ${tabelname} WHERE ${column}='${id}'`
         const client = await this.connect(dbname);
         let result = await client.query<T>(query);
         await client.end();
